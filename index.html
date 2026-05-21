@@ -17,7 +17,7 @@
         body { background: var(--bg-color); color: var(--text); padding: 12px; }
         h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 8px; }
         .section { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #334155; }
- 
+        
         /* Preflop Grid Styles */
         .flex-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .pos-btn, .street-btn, .size-btn, .hit-btn {
@@ -28,7 +28,7 @@
         .street-btn.active { background: #e2e8f0; color: #000; }
         .size-btn.active { background: #f59e0b; color: #000; }
         .hit-btn.active { background: var(--accent-green); color: #000; }
- 
+        
         .grid-container {
             display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px;
             background: #000; padding: 4px; border-radius: 6px; margin-top: 8px;
@@ -39,7 +39,7 @@
             border-radius: 2px; text-transform: uppercase;
         }
         .cell.highlight { background: #0369a1; color: #fff; }
- 
+        
         /* Postflop Styles */
         .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .draw-btn {
@@ -48,7 +48,7 @@
         }
         .draw-btn.active { background: #0284c7; box-shadow: 0 0 8px var(--accent); }
         .draw-btn small { color: #94a3b8; font-size: 9px; }
- 
+        
         /* Advisor Box Output */
         .output-box { border-left: 4px solid var(--accent); background: #111827; padding: 10px; border-radius: 0 8px 8px 0; }
         .equity-txt { font-size: 24px; font-weight: 900; color: var(--accent); }
@@ -88,9 +88,10 @@
             <button class="hit-btn active" onclick="setHit('before', this)">Before Hit (Draws)</button>
             <button class="hit-btn" onclick="setHit('after', this)">After Hit (Made Hand)</button>
         </div>
- 
+        
         <div id="drawsWrapper" class="grid-3col">
             <button class="draw-btn active" id="g-4" onclick="setGroup(4, 'g-4')"><span>Gutshot</span><small>4 Outs</small></button>
+            <button class="draw-btn" id="g-6" onclick="setGroup(6, 'g-6')"><span>Two Over</span><small>6 Outs</small></button>
             <button class="draw-btn" id="g-8" onclick="setGroup(8, 'g-8')"><span>OESD</span><small>8 Outs</small></button>
             <button class="draw-btn" id="g-9" onclick="setGroup(9, 'g-9')"><span>Flush Draw</span><small>9 Outs</small></button>
             <button class="draw-btn" id="g-12" onclick="setGroup(12, 'g-12')"><span>Flush+Gut</span><small>12 Outs</small></button>
@@ -108,7 +109,6 @@
     </div>
 
     <script>
-        // Core Engine State Variables
         let currentPos = 'utg';
         let street = 'flop';
         let betRatio = 0.33;
@@ -119,15 +119,13 @@
 
         const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
 
-        // Compact Position Range Maps (Value: 1 = Open, 0 = Fold)
         const ranges = {
             utg: ["AA","KK","QQ","JJ","TT","99","88","77","AKs","AQs","AJs","ATs","A9s","KQs","KJs","KTs","QJs","QTs","JTs","T9s","AKo","AQo","AJo","ATo"],
-            co: ["AA","KK","QQ","JJ","TT","99","88","77","66","55","AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","KQs","KJs","KTs","K9s","QJs","QTs","Q9s","JTs","JT9s","T9s","98s","AKo","AQo","AJo","ATo","KQo","KJo"],
+            co: ["AA","KK","QQ","JJ","TT","99","88","77","66","55","AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","KQs","KJs","KTs","K9s","QJs","QTs","Q9s","JTs","T9s","98s","AKo","AQo","AJo","ATo","KQo","KJo"],
             btn: ["AA","KK","QQ","JJ","TT","99","88","77","66","55","44","33","22","AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","A5s","A4s","A3s","A2s","KQs","KJs","KTs","K9s","K8s","K7s","QJs","QTs","Q9s","JTs","J9s","T9s","T8s","98s","97s","87s","76s","65s","54s","AKo","AQo","AJo","ATo","A9o","A8o","KQo","KJo","KTo","QJo","QTo","JTo","T9o"],
             sb: ["AA","KK","QQ","JJ","TT","99","88","77","66","55","44","33","22","AKs","AQs","AJs","ATs","A9s","A8s","A7s","A6s","A5s","A4s","A3s","A2s","KQs","KJs","KTs","K9s","K8s","QJs","QTs","Q9s","JTs","J9s","T9s","T8s","98s","87s","76s","65s","AKo","AQo","AJo","ATo","A9o","A8o","A7o","KQo","KJo","KTo","QJo","QTo","JTo"]
         };
 
-        // Render Preflop Grid Layout
         function renderGrid() {
             const container = document.getElementById('matrixGrid');
             container.innerHTML = '';
@@ -152,7 +150,6 @@
             }
         }
 
-        // State Setter Actions
         function setPos(pos, btn) {
             currentPos = pos;
             document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
@@ -188,39 +185,37 @@
             engine();
         }
 
-        // Strategy Engine & Sizing Advising Logic
         function engine() {
             const mult = (street === 'flop') ? 4 : 2;
             let equity = groupOuts * mult;
-            if (groupOuts === 12 && street === 'turn') equity = 26.1;
+            if (groupOuts === 12 && street === 'turn') equity = 26.1; 
             if (groupOuts === 15 && street === 'turn') equity = 32.6;
- 
+            
             const potOdds = (betRatio / (1 + (2 * betRatio))) * 100;
- 
+            
             document.getElementById('eqTxt').innerText = (groupOuts === 0) ? "VALUE" : equity.toFixed(1) + "%";
- 
+            
             let advice = "";
- 
+            
             if (hitStatus === 'before') {
-                // BEFORE HIT STRATEGY (Draws/Semi-Bluffs)
                 if (groupOuts >= 9) {
-                    advice = `🔥 \*\*STRONG DRAW (${equity.toFixed(1)}%):\*\* You have massive leverage. If checking, bet \*\*75% to 100%\*\* to Maximize Fold Equity. If facing a bet, your equity easily beats their ${potOdds.toFixed(0)}% Pot Odds target. Re-raise or Shove.`;
-                } else if (groupOuts >= 4) {
-                    advice = `⚠️ \*\*WEAK DRAW (${equity.toFixed(1)}%):\*\* Pot Odds threshold is ${potOdds.toFixed(0)}%. Do not bet big yourself. \*\*Call only\*\* if facing a small 33% sizing, otherwise fold unless deep stacks allow for massive implied odds.`;
+                    advice = `🔥 **STRONG DRAW (${equity.toFixed(1)}%):** Massive leverage. If checking, bet **75% to 100%** to maximize fold equity. If facing a bet, your equity beats their ${potOdds.toFixed(0)}% Pot Odds. Re-raise or Shove.`;
+                } else if (groupOuts === 6 || groupOuts === 8) {
+                    advice = `⚡ **MEDIUM DRAW (${equity.toFixed(1)}%):** Pot Odds threshold is ${potOdds.toFixed(0)}%. Great for a standard continuation bet (C-bet) if you have preflop initiative. If facing a bet, call *only* against small sizes (33% to 50%), otherwise play cautiously.`;
+                } else if (groupOuts === 4) {
+                    advice = `⚠️ **WEAK DRAW (${equity.toFixed(1)}%):** Pot Odds threshold is ${potOdds.toFixed(0)}%. Do not invest heavily. Check-fold to aggressive bets unless you have massive implied odds to clean them out on the river.`;
                 }
             } else {
-                // AFTER HIT STRATEGY (Made Hands)
                 if (street === 'flop') {
-                    advice = `🎯 \*\*FLOP MADE HAND:\*\* On wet/coordinated textures, use \*\*75% sizing\*\* to protect against draws. On static/dry boards, fire a small \*\*33% sizing\*\* to collect thin value and deny equity cheaply.`;
+                    advice = `🎯 **FLOP MADE HAND:** On wet/coordinated textures, use **75% sizing** to protect against draws. On static/dry boards, fire a small **33% sizing** to collect thin value and deny equity cheaply.`;
                 } else {
-                    advice = `🛑 \*\*TURN MADE HAND:\*\* Polarize your execution. If you hold a Monster (Set/Two-Pair), commit a heavy \*\*75% or 100% sizing\*\* to set up a river shove. If you have marginal top-pair, switch to check-call mode.`;
+                    advice = `🛑 **TURN MADE HAND:** Polarize your execution. If you hold a Monster (Set/Two-Pair), commit a heavy **75% or 100% sizing** to set up a river shove. If you have marginal top-pair, switch to check-call mode.`;
                 }
             }
- 
+            
             document.getElementById('advTxt').innerHTML = advice;
         }
 
-        // Initialize App on Startup
         renderGrid();
         engine();
     </script>
