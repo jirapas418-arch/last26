@@ -19,7 +19,6 @@
         h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 8px; }
         .section { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #334155; }
         
-        /* Interactive Component Rows */
         .flex-row { display: flex; gap: 6px; margin-bottom: 6px; }
         .row-label { font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; display: block; }
         
@@ -35,7 +34,6 @@
         .size-btn.active { background: #f59e0b; color: #000; }
         .hit-btn.active { background: var(--accent-green); color: #000; }
         
-        /* 13x13 Dynamic Visual Matrix */
         .grid-container {
             display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px;
             background: #000; padding: 4px; border-radius: 6px; margin-top: 6px;
@@ -48,7 +46,6 @@
         .cell.highlight { background: #0369a1; color: #fff; }
         .cell.highlight-purple { background: #7e22ce; color: #fff; }
         
-        /* Postflop Setup Components */
         .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .draw-btn {
             background: #334155; border: none; padding: 8px; border-radius: 6px;
@@ -57,7 +54,6 @@
         .draw-btn.active { background: #0284c7; box-shadow: 0 0 8px var(--accent); }
         .draw-btn small { color: #94a3b8; font-size: 9px; }
         
-        /* Real-Time Advisor Layout */
         .output-box { border-left: 4px solid var(--accent); background: #111827; padding: 10px; border-radius: 0 8px 8px 0; }
         .equity-txt { font-size: 24px; font-weight: 900; color: var(--accent); }
         .adv-txt { font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.4; }
@@ -136,7 +132,6 @@
     </div>
 
     <script>
-        // System Global State Configuration
         let currentPos = 'utg';
         let currentAction = 'open';
         let villainPos = 'ep';
@@ -149,7 +144,6 @@
 
         const ranks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
 
-        // Fully Relative Strategy Multi-Dimensional Range Grid Map
         const ranges = {
             open: {
                 utg: ["AA","KK","QQ","JJ","TT","99","88","77","AKs","AQs","AJs","ATs","A9s","KQs","KJs","KTs","QJs","QTs","JTs","T9s","AKo","AQo","AJo","ATo"],
@@ -169,7 +163,7 @@
                     sb: ["TT","99","88","77","66","AJs","ATs","KQs","KJs","QJs","JTs","AQo","KQo"]
                 }
             },
-            3bet: {
+            "3bet": {
                 ep: {
                     utg: [], co: ["AA","KK","QQ","JJ","AKs","AQs","AJs","AKo","AQo"],
                     btn: ["AA","KK","QQ","JJ","TT","AKs","AQs","AJs","A5s","AKo","AQo"],
@@ -181,7 +175,7 @@
                     sb: ["AA","KK","QQ","JJ","TT","99","88","AKs","AQs","AJs","ATs","A5s","A4s","KQs","KJs","KTs","QJs","JTs","AKo","AQo","AJo","KQo"]
                 }
             },
-            4bet: {
+            "4bet": {
                 ep: {
                     utg: ["AA","KK","QQ","AKs","AKo"], co: ["AA","KK","QQ","AKs","AKo"],
                     btn: ["AA","KK","QQ","AKs"], sb: ["AA","KK","QQ","AKs"]
@@ -237,7 +231,6 @@
             document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            // Smart Form Management Visibility Toggle
             const vRow = document.getElementById('villainRowContainer');
             if (act === 'open') {
                 vRow.style.display = 'none';
